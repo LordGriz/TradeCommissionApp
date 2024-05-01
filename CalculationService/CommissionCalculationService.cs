@@ -33,6 +33,7 @@ public sealed class CommissionCalculationService
         // ToDo: Remove once DbContexts are thread-safe concern is addressed. 
         var fees = await _feeRepository.Get().ToListAsync();
 
+        // Operate on the IEnumerable using multiple threads
         await Parallel.ForEachAsync(trades, _options, async (trade, cancellationToken) =>
         {
             // Do not perform any calculations if the execution was cancelled
@@ -41,7 +42,7 @@ public sealed class CommissionCalculationService
             var totalTrade = trade.Quantity * trade.Price;
             double commission = 0;
 
-            // ToDo: EF Core DbContexts are apparently not thread-safe which I did not realize. Not Needed for Demo
+            // ToDo: EF Core DbContexts are apparently not thread-safe which I did not realize (This was my first time using it). Not needed for POC
             // await foreach (var fee in _feeRepository.Get(trade.SecurityType, trade.TransactionType).WithCancellation(cancellationToken))
 
             await foreach (var fee in fees.Where(f => IsMatch(f, trade)).ToAsyncEnumerable().WithCancellation(cancellationToken))

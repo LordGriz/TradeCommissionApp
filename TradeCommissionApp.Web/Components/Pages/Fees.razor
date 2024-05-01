@@ -51,7 +51,7 @@ else
             }
             <tr>
                 <td>
-                    <InputText @bind-Value="Model!.SecurityType"/>
+                    <InputText @bind-Value="Model!.SecurityType" style="text-transform:uppercase" />
                     <ValidationMessage For="() => Model!.SecurityType"/>
                 </td>
                 <td>
