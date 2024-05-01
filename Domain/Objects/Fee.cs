@@ -2,7 +2,7 @@
 
 namespace Domain.Objects;
 
-public sealed record Fee(string Description, string SecurityType, TransactionType TransactionType, double PercentageOfTotal = 0, double FlatFee = 0, double? MinThreshold = default, double? MaxThreshold = default)
+public sealed record Fee(string Description, string SecurityType, TransactionType TransactionType, double PercentageOfTotal = 0, double FlatFee = 0, double? MinThreshold = null, double? MaxThreshold = null)
 {
     public Guid Id { get; init; } = Guid.NewGuid();
 

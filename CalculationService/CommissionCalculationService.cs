@@ -5,6 +5,7 @@ namespace CalculationService;
 
 public sealed class CommissionCalculationService
 {
+    // ToDo: This should be set via the application configuration
     public const int MaxDegreeOfParallelism = 10;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
