@@ -1,11 +1,12 @@
 ﻿@page "/fees"
 @using Domain.Objects
+@using Domain.Types
 @using TradeCommissionApiTypes
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
 @rendermode InteractiveServer
 
-@inject TradeCommissionApiClient FeesApi
+@inject TradeCommissionApiClient TradeAppApi
 
 <PageTitle>Fees</PageTitle>
 
@@ -19,99 +20,82 @@
 }
 else
 {
-    @* <form method="post" @onsubmit="Add" @formname="new-fee-form">
-        <AntiforgeryToken/>
+    <EditForm EditContext="editContext" OnValidSubmit="AddAsync" FormName="NewTradeForm">
+        <AntiforgeryToken />
         <table class="table">
             <thead>
-            <th>
-                <td colspan="4">Add Fee:</td>
-            </th>
+            <tr>
+                <th>SecurityType</th>
+                <th>TransactionType</th>
+                <th>Description</th>
+                <th>PercentageOfTotal</th>
+                <th>FlatFee</th>
+                <th>MinThreshold</th>
+                <th>MaxThreshold</th>
+                <th>&nbsp;</th>
+            </tr>
             </thead>
             <tbody>
+            @foreach (var fee in fees)
+            {
+                <tr>
+                    <td>@fee.SecurityType</td>
+                    <td>@fee.TransactionType</td>
+                    <td>@fee.Description</td>
+                    <td>@fee.PercentageOfTotal</td>
+                    <td>@fee.FlatFee</td>
+                    <td>@fee.MinThreshold</td>
+                    <td>@fee.MaxThreshold</td>
+                    <td><button class="btn btn-primary" type="button" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
+                </tr>
+            }
             <tr>
                 <td>
-                    <label>
-                        Security:
-                        <InputText @bind-Value="Model!.SecurityType"/>
-                    </label>
+                    <InputText @bind-Value="Model!.SecurityType"/>
+                    <ValidationMessage For="() => Model!.SecurityType"/>
                 </td>
                 <td>
-                    <label>
-                        Transaction:
-                        <InputSelect @bind-Value="Model!.TransactionType">
-                            @foreach (var value in Enum.GetValues(typeof(TransactionType)))
+                    <InputSelect @bind-Value="Model!.TransactionType">
+                        @foreach (var value in Enum.GetValues(typeof(TransactionType)))
+                        {
+                            var type = (TransactionType)value;
+                            var name = Enum.GetName(type);
+
+                            if (type == TransactionType.Unknown)
                             {
-                                var type = (TransactionType)value;
-                                var name = Enum.GetName(type);
-
-                                if (type == TransactionType.Unknown)
-                                {
-                                    name = string.Empty;
-                                }
-
-                                <option>@name</option>
+                                name = string.Empty;
                             }
-                        </InputSelect>
-                    </label>
-                </td>
-                    <td>
-                        <label>
-                            Description:
-                            <InputText @bind-Value="Model!.Description" />
-                        </label>
-                    </td>
-                <td>
-                    <label>
-                        PercentageOfTotal:
-                        <InputNumber @bind-Value="Model!.PercentageOfTotal" />
-                    </label>
+
+                            <option>@name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Model!.TransactionType" />
                 </td>
                 <td>
-                    <label>
-                        Price:
-                        <InputNumber @bind-Value="Model!.Price"/>
-                    </label>
+                    <InputText @bind-Value="Model!.Description" />
+                    <ValidationMessage For="() => Model!.Description" />
                 </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.PercentageOfTotal"/>
+                    <ValidationMessage For="() => Model!.PercentageOfTotal" />
+                </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.FlatFee"/>
+                    <ValidationMessage For="() => Model!.FlatFee" />
+                </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.MinThreshold"/>
+                    <ValidationMessage For="() => Model!.MinThreshold" />
+                </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.MaxThreshold" />
+                    <ValidationMessage For="() => Model!.MaxThreshold" />
+                </td>
+                <td><button class="btn btn-primary" type="submit">Add</button></td>
             </tr>
             </tbody>
         </table>
-
-        <div>
-            <button class="btn btn-primary" type="submit">Add</button>
-        </div>
-    </form> *@
-    
-    <br/>
-    <br />
-    <table class="table">
-        <thead>
-        <tr>
-            <th>SecurityType</th>
-            <th>TransactionType</th>
-            <th>Description</th>
-            <th>PercentageOfTotal</th>
-            <th>FlatFee</th>
-            <th>MinThreshold</th>
-            <th>MaxThreshold</th>
-            <th>&nbsp;</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var fee in fees)
-        {
-            <tr>
-                <td>@fee.SecurityType</td>
-                <td>@fee.TransactionType</td>
-                <td>@fee.Description</td>
-                <td>@fee.PercentageOfTotal</td>
-                <td>@fee.FlatFee</td>
-                <td>@fee.MinThreshold</td>
-                <td>@fee.MaxThreshold</td>
-                <td><button class="btn btn-primary" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    </EditForm>
     <div>
         <button class="btn btn-primary" @onclick="ResetToDefault">Reset to Default</button>
     </div>
@@ -123,21 +107,84 @@ else
 
     private Fee[]? fees;
 
+    private EditContext? editContext;
+    private ValidationMessageStore? messageStore;
+
     protected override async Task OnInitializedAsync()
     {
         Model ??= new AddFeeRequest();
-        fees = await FeesApi.GetFeesAsync();
+        editContext = new EditContext(Model);
+        editContext.OnValidationRequested += HandleValidation;
+        messageStore = new ValidationMessageStore(editContext);
+
+        fees = await TradeAppApi.GetFeesAsync();
+    }
+
+    private void HandleValidation(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore?.Clear();
+
+        if (string.IsNullOrWhiteSpace(Model!.SecurityType))
+        {
+            messageStore?.Add(() => Model.SecurityType, "Please add a security");
+        }
+
+        if (Model!.TransactionType == TransactionType.Unknown)
+        {
+            messageStore?.Add(() => Model.TransactionType, "Please select a transaction");
+        }
+
+        if (string.IsNullOrWhiteSpace(Model!.Description))
+        {
+            messageStore?.Add(() => Model.Description, "Please add a description");
+        }
+
+        if (Model!.PercentageOfTotal < 0)
+        {
+            messageStore?.Add(() => Model.PercentageOfTotal, "Please add a valid number");
+        }
+
+        if (Model!.FlatFee < 0)
+        {
+            messageStore?.Add(() => Model.FlatFee, "Please add a valid flat fee");
+        }
+
+        if (Model!.MinThreshold < 0)
+        {
+            messageStore?.Add(() => Model.MinThreshold, "Please add a valid min threshold");
+        }
+
+        if (Model!.MaxThreshold < 0)
+        {
+            messageStore?.Add(() => Model.MaxThreshold, "Please add a valid max threshold");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (editContext is not null)
+        {
+            editContext.OnValidationRequested -= HandleValidation;
+        }
     }
 
     private async Task DeleteAsync(Guid id)
     {
-        await FeesApi.DeleteFeeAsync(id);
-        fees = await FeesApi.GetFeesAsync();
+        await TradeAppApi.DeleteFeeAsync(id);
+        fees = await TradeAppApi.GetFeesAsync();
     }
 
     private async Task ResetToDefault()
     {
-        await FeesApi.ResetToDefaultAsync();
-        fees = await FeesApi.GetFeesAsync();
+        await TradeAppApi.ResetToDefaultAsync();
+        fees = await TradeAppApi.GetFeesAsync();
+    }
+
+    private async Task AddAsync()
+    {
+        await TradeAppApi.AddFeeAsync(Model!);
+        Model = new AddFeeRequest();
+
+        fees = await TradeAppApi.GetFeesAsync();
     }
 }

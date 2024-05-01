@@ -7,7 +7,7 @@
 @attribute [OutputCache(Duration = 5)]
 @rendermode InteractiveServer
 
-@inject TradeCommissionApiClient TradesApi
+@inject TradeCommissionApiClient TradeAppApi
 
 <PageTitle>Trades</PageTitle>
 
@@ -41,7 +41,7 @@ else
                     <td>@fee.TransactionType</td>
                     <td>@fee.Quantity</td>
                     <td>@fee.Price</td>
-                    <td><button class="btn btn-primary" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
+                    <td><button class="btn btn-primary" type="button" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
                 </tr>
             }
             <tr>
@@ -80,11 +80,13 @@ else
         </table>
     </EditForm>
 
+    <br/>
+    <br />
     <div>
-        <button class="btn btn-primary" @onclick="CalculateCommissionAsync">Calculate Commission</button>
+        <h5>Commission Paid:&nbsp;&nbsp; @commission </h5>
     </div>
 
-    <div>My commission is @commission</div>
+    <div></div>
 }
 
 @code {
@@ -101,11 +103,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         Model ??= new TradeRequest();
-        editContext = new(Model);
+        editContext = new EditContext(Model);
         editContext.OnValidationRequested += HandleValidation;
-        messageStore = new(editContext);
+        messageStore = new ValidationMessageStore(editContext);
 
-        trades = await TradesApi.GetTradesAsync();
+        await CalculateCommissionAsync();
     }
 
     private void HandleValidation(object? sender, ValidationRequestedEventArgs args)
@@ -143,21 +145,22 @@ else
 
     private async Task DeleteAsync(Guid id)
     {
-        await TradesApi.DeleteTradeAsync(id);
-        trades = await TradesApi.GetTradesAsync();
+        await TradeAppApi.DeleteTradeAsync(id);
+        await CalculateCommissionAsync();
     }
 
     private async Task AddAsync()
     {
-        await TradesApi.AddTradeAsync(Model!);
+        await TradeAppApi.AddTradeAsync(Model!);
 
         Model = new TradeRequest();
-        trades = await TradesApi.GetTradesAsync();
+        await CalculateCommissionAsync();
     }
 
     private async Task CalculateCommissionAsync()
     {
-        var result = await TradesApi.CalculateCommissionAsync(trades!);
+        trades = await TradeAppApi.GetTradesAsync();
+        var result = await TradeAppApi.CalculateCommissionAsync(trades!);
         commission = result?.Total ?? 0;
     }
 }

@@ -40,17 +40,6 @@ public sealed class TradeRepository : ITradeRepository
     public IAsyncEnumerable<Trade> Get()
     {
         var trades = _dbContext.Trades.AsQueryable();
-
-        //if (!string.IsNullOrWhiteSpace(securityType))
-        //{
-        //    trades = trades.Where(f => f.SecurityType == securityType);
-        //}
-
-        //if (transactionType != null)
-        //{
-        //    trades = trades.Where(f => f.TransactionType == transactionType);
-        //}
-
         return trades.AsAsyncEnumerable();
     }
 

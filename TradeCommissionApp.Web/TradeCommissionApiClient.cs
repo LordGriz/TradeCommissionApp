@@ -10,6 +10,11 @@ public class TradeCommissionApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<Fee[]>("/fees") ?? [];
     }
 
+    public async Task AddFeeAsync(AddFeeRequest request)
+    {
+        await httpClient.PostAsJsonAsync("/fees", request);
+    }
+
     public async Task DeleteFeeAsync(Guid id)
     {
          await httpClient.DeleteAsync($"/fees/{id}");
