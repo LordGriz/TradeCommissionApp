@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CalculationService\CalculationService.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\TradeCommissionApiTypes\TradeCommissionApiTypes.csproj" />
     <ProjectReference Include="..\TradeCommissionApp.ServiceDefaults\TradeCommissionApp.ServiceDefaults.csproj" />
   </ItemGroup>
 

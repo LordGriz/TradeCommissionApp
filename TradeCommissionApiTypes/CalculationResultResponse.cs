@@ -1,8 +1,8 @@
 ﻿using Domain.Objects;
 
-namespace CalculationService;
+namespace TradeCommissionApiTypes;
 
-public sealed class CalculationResult(List<Charge> tradeCommissions, double total)
+public sealed class CalculationResultResponse(List<Charge> tradeCommissions, double total)
 {
     public List<Charge> TradeCommissions { get; } = tradeCommissions;
 

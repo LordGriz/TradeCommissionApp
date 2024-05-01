@@ -1,16 +1,10 @@
 using CalculationService;
-using Domain.Contracts;
-using Domain.Objects;
-using Domain.Types;
 using Infrastructure;
-using Infrastructure.Repositories;
-using Microsoft.AspNetCore.Builder;
-using System.Data;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TradeCommissionApp.ApiService;
+using TradeCommissionApiTypes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,29 +62,10 @@ app.UseExceptionHandler(configure =>
 app.AddFeesRoutes();
 app.AddTradesRoutes();
 
-var summaries = new[]
+// Add the endpoint for calculating the commission
+app.MapPost("/commission/calculate", async (CommissionCalculationService calculationService, CalculateCommissionRequest request) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-//app.MapGet("/weatherforecast", () =>
-//{
-//    var forecast = Enumerable.Range(1, 5).Select(index =>
-//        new WeatherForecast
-//        (
-//            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-//            Random.Shared.Next(-20, 55),
-//            summaries[Random.Shared.Next(summaries.Length)]
-//        ))
-//        .ToArray();
-//    return forecast;
-//});
-
-app.MapPost("/commision/calculate", async (CommissionCalculationService calculationService, CalculateCommissionRequest request) =>
-{
-
     var result = await calculationService.Calculate(request.ToTradeList());
-
     return Results.Ok(result);
 });
 

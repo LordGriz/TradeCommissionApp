@@ -1,0 +1,163 @@
+﻿@page "/"
+@page "/trades"
+@using Domain.Objects
+@using Domain.Types
+@using TradeCommissionApiTypes
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+@rendermode InteractiveServer
+
+@inject TradeCommissionApiClient TradesApi
+
+<PageTitle>Trades</PageTitle>
+
+<h1>Trades</h1>
+
+<p>Add new trades and calculate the commission.</p>
+
+@if (trades == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm EditContext="editContext" OnValidSubmit="AddAsync" FormName="NewTradeForm">
+        <AntiforgeryToken />
+        <table class="table">
+            <thead>
+            <tr>
+                <th>SecurityType</th>
+                <th>TransactionType</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var fee in trades)
+            {
+                <tr>
+                    <td>@fee.SecurityType</td>
+                    <td>@fee.TransactionType</td>
+                    <td>@fee.Quantity</td>
+                    <td>@fee.Price</td>
+                    <td><button class="btn btn-primary" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    <InputText @bind-Value="Model!.SecurityType"/>
+                    <ValidationMessage For="() => Model!.SecurityType"/>
+                </td>
+                <td>
+                    <InputSelect @bind-Value="Model!.TransactionType">
+                        @foreach (var value in Enum.GetValues(typeof(TransactionType)))
+                        {
+                            var type = (TransactionType)value;
+                            var name = Enum.GetName(type);
+
+                            if (type == TransactionType.Unknown)
+                            {
+                                name = string.Empty;
+                            }
+
+                            <option>@name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Model!.TransactionType" />
+                </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.Quantity"/>
+                    <ValidationMessage For="() => Model!.Quantity" />
+                </td>
+                <td>
+                    <InputNumber @bind-Value="Model!.Price"/>
+                    <ValidationMessage For="() => Model!.Price" />
+                </td>
+                <td><button class="btn btn-primary" type="submit">Add</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </EditForm>
+
+    <div>
+        <button class="btn btn-primary" @onclick="CalculateCommissionAsync">Calculate Commission</button>
+    </div>
+
+    <div>My commission is @commission</div>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    public TradeRequest? Model { get; set; }
+
+    private double commission;
+
+    private Trade[]? trades;
+
+    private EditContext? editContext;
+    private ValidationMessageStore? messageStore;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model ??= new TradeRequest();
+        editContext = new(Model);
+        editContext.OnValidationRequested += HandleValidation;
+        messageStore = new(editContext);
+
+        trades = await TradesApi.GetTradesAsync();
+    }
+
+    private void HandleValidation(object? sender, ValidationRequestedEventArgs args)
+    {
+        messageStore?.Clear();
+
+        if (string.IsNullOrWhiteSpace(Model!.SecurityType))
+        {
+            messageStore?.Add(() => Model.SecurityType, "Please add a security");
+        }
+
+        if (Model!.TransactionType == TransactionType.Unknown)
+        {
+            messageStore?.Add(() => Model.TransactionType, "Please select a transaction");
+        }
+
+        if (Model!.Quantity <= 0)
+        {
+            messageStore?.Add(() => Model.Quantity, "Please add a valid quantity");
+        }
+
+        if (Model!.Price <= 0)
+        {
+            messageStore?.Add(() => Model.Price, "Please add a valid price");
+        }
+    }
+
+    public void Dispose()
+    {
+        if (editContext is not null)
+        {
+            editContext.OnValidationRequested -= HandleValidation;
+        }
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await TradesApi.DeleteTradeAsync(id);
+        trades = await TradesApi.GetTradesAsync();
+    }
+
+    private async Task AddAsync()
+    {
+        await TradesApi.AddTradeAsync(Model!);
+
+        Model = new TradeRequest();
+        trades = await TradesApi.GetTradesAsync();
+    }
+
+    private async Task CalculateCommissionAsync()
+    {
+        var result = await TradesApi.CalculateCommissionAsync(trades!);
+        commission = result?.Total ?? 0;
+    }
+}

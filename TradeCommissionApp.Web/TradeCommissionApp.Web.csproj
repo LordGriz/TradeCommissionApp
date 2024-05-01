@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TradeCommissionApiTypes\TradeCommissionApiTypes.csproj" />
+    <ProjectReference Include="..\TradeCommissionApp.ServiceDefaults\TradeCommissionApp.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="8.0.0-preview.4.24156.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.4" />
+  </ItemGroup>
+
+</Project>

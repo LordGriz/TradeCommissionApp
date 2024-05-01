@@ -1,0 +1,143 @@
+﻿@page "/fees"
+@using Domain.Objects
+@using TradeCommissionApiTypes
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+@rendermode InteractiveServer
+
+@inject TradeCommissionApiClient FeesApi
+
+<PageTitle>Fees</PageTitle>
+
+<h1>Fees</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (fees == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @* <form method="post" @onsubmit="Add" @formname="new-fee-form">
+        <AntiforgeryToken/>
+        <table class="table">
+            <thead>
+            <th>
+                <td colspan="4">Add Fee:</td>
+            </th>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <label>
+                        Security:
+                        <InputText @bind-Value="Model!.SecurityType"/>
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        Transaction:
+                        <InputSelect @bind-Value="Model!.TransactionType">
+                            @foreach (var value in Enum.GetValues(typeof(TransactionType)))
+                            {
+                                var type = (TransactionType)value;
+                                var name = Enum.GetName(type);
+
+                                if (type == TransactionType.Unknown)
+                                {
+                                    name = string.Empty;
+                                }
+
+                                <option>@name</option>
+                            }
+                        </InputSelect>
+                    </label>
+                </td>
+                    <td>
+                        <label>
+                            Description:
+                            <InputText @bind-Value="Model!.Description" />
+                        </label>
+                    </td>
+                <td>
+                    <label>
+                        PercentageOfTotal:
+                        <InputNumber @bind-Value="Model!.PercentageOfTotal" />
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        Price:
+                        <InputNumber @bind-Value="Model!.Price"/>
+                    </label>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <button class="btn btn-primary" type="submit">Add</button>
+        </div>
+    </form> *@
+    
+    <br/>
+    <br />
+    <table class="table">
+        <thead>
+        <tr>
+            <th>SecurityType</th>
+            <th>TransactionType</th>
+            <th>Description</th>
+            <th>PercentageOfTotal</th>
+            <th>FlatFee</th>
+            <th>MinThreshold</th>
+            <th>MaxThreshold</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var fee in fees)
+        {
+            <tr>
+                <td>@fee.SecurityType</td>
+                <td>@fee.TransactionType</td>
+                <td>@fee.Description</td>
+                <td>@fee.PercentageOfTotal</td>
+                <td>@fee.FlatFee</td>
+                <td>@fee.MinThreshold</td>
+                <td>@fee.MaxThreshold</td>
+                <td><button class="btn btn-primary" @onclick="@(async () => await DeleteAsync(fee.Id))">Delete</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <div>
+        <button class="btn btn-primary" @onclick="ResetToDefault">Reset to Default</button>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    public AddFeeRequest? Model { get; set; }
+
+    private Fee[]? fees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model ??= new AddFeeRequest();
+        fees = await FeesApi.GetFeesAsync();
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await FeesApi.DeleteFeeAsync(id);
+        fees = await FeesApi.GetFeesAsync();
+    }
+
+    private async Task ResetToDefault()
+    {
+        await FeesApi.ResetToDefaultAsync();
+        fees = await FeesApi.GetFeesAsync();
+    }
+}

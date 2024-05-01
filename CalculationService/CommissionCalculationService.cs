@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Objects;
+using TradeCommissionApiTypes;
 
 namespace CalculationService;
 
@@ -24,7 +25,7 @@ public sealed class CommissionCalculationService
         };
     }
 
-    public async Task<CalculationResult> Calculate(IEnumerable<Trade> trades)
+    public async Task<CalculationResultResponse> Calculate(IEnumerable<Trade> trades)
     {
         List<Charge> tradeCommissions = [];
         double totalCommission = 0;
@@ -66,7 +67,7 @@ public sealed class CommissionCalculationService
             while (Math.Abs(initialValue - Interlocked.CompareExchange(ref totalCommission, computedValue, initialValue)) > 0.001);
         });
         
-        return new CalculationResult(tradeCommissions, totalCommission);
+        return new CalculationResultResponse(tradeCommissions, totalCommission);
     }
 
     private static bool IsMatch(Fee fee, Trade trade)

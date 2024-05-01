@@ -1,6 +1,7 @@
 ﻿using Domain.Contracts;
 using Domain.Objects;
 using Domain.Types;
+using TradeCommissionApiTypes;
 
 namespace TradeCommissionApp.ApiService;
 
@@ -26,12 +27,12 @@ public static class FeesRouteConfiguration
 
         // Delete a fee
         //
-        app.MapDelete("/fees/{feeId:guid}", async (IFeeRepository repository, Guid feeId) =>
+        app.MapDelete("/fees/{id:guid}", async (IFeeRepository repository, Guid id) =>
         {
-            var fee = await repository.Get(feeId);
+            var fee = await repository.Get(id);
             if (fee is null)
             {
-                return Results.NotFound(feeId);
+                return Results.NotFound(id);
             }
 
             await repository.Remove(fee);
