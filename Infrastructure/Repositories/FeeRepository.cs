@@ -1,9 +1,7 @@
 ﻿using Domain.Contracts;
 using Domain.Objects;
 using Domain.Types;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 
 namespace Infrastructure.Repositories;
 
@@ -55,10 +53,6 @@ public sealed class FeeRepository : IFeeRepository
         }
 
         return fees.AsAsyncEnumerable();
-
-        //return _dbContext.Fees.Where(f => f.SecurityType == securityType && f.TransactionType == transactionType).AsAsyncEnumerable();
-
-
     }
 
     public async Task<Fee?> Get(Guid id)

@@ -6,12 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Contracts\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="StronglyTypedIds" Version="1.0.1" />
-  </ItemGroup>
-
 </Project>

@@ -29,6 +29,9 @@ public sealed class CommissionCalculationService
         List<Charge> tradeCommissions = [];
         double totalCommission = 0;
 
+        // ToDo: Remove once DbContexts are thread-safe concern is addressed. 
+        var fees = await _feeRepository.Get().ToListAsync();
+
         await Parallel.ForEachAsync(trades, _options, async (trade, cancellationToken) =>
         {
             // Do not perform any calculations if the execution was cancelled
@@ -37,7 +40,10 @@ public sealed class CommissionCalculationService
             var totalTrade = trade.Quantity * trade.Price;
             double commission = 0;
 
-            await foreach (var fee in _feeRepository.Get(trade.SecurityType, trade.TransactionType).WithCancellation(cancellationToken))
+            // ToDo: EF Core DbContexts are apparently not thread-safe which I did not realize. Not Needed for Demo
+            // await foreach (var fee in _feeRepository.Get(trade.SecurityType, trade.TransactionType).WithCancellation(cancellationToken))
+
+            await foreach (var fee in fees.Where(f => IsMatch(f, trade)).ToAsyncEnumerable().WithCancellation(cancellationToken))
             {
                 // Calculate the commission based on the given fee
                 commission += fee.Calculate(totalTrade);
@@ -61,6 +67,12 @@ public sealed class CommissionCalculationService
         });
         
         return new CalculationResult(tradeCommissions, totalCommission);
+    }
+
+    private static bool IsMatch(Fee fee, Trade trade)
+    {
+        return string.CompareOrdinal(fee.SecurityType, trade.SecurityType) == 0 
+               && fee.TransactionType == trade.TransactionType;
     }
 
 }

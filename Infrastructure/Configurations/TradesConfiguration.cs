@@ -5,17 +5,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations;
 
-public class FeeConfiguration : IEntityTypeConfiguration<Fee>
+public class TradesConfiguration : IEntityTypeConfiguration<Trade>
 {
-    public void Configure(EntityTypeBuilder<Fee> builder)
+    public void Configure(EntityTypeBuilder<Trade> builder)
     {
-        builder.ToTable("Fees");
+        builder.ToTable("Trades");
         builder.HasKey(f => f.Id);
 
         builder.Property(f => f.SecurityType)
-            .HasMaxLength(100);
-
-        builder.Property(f => f.Description)
             .HasMaxLength(100);
     }
 }
