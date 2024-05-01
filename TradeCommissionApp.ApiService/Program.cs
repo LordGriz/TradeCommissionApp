@@ -67,7 +67,7 @@ app.MapPost("/commission/calculate", async (CommissionCalculationService calcula
 {
     var result = await calculationService.Calculate(request.ToTradeList());
     return Results.Ok(result);
-});
+}).WithTags("Commission Service"); ;
 
 
 app.MapDefaultEndpoints();

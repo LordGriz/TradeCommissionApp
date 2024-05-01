@@ -2,7 +2,6 @@ using Domain.Contracts;
 using Domain.Objects;
 using Domain.Types;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace CalculationService.Tests;
@@ -28,21 +27,18 @@ public class CommissionCalculationServiceTests
                 fees.ToAsyncEnumerable());
     }
 
-
     public readonly Fee ComBuyCommissionFee = new("Standard COM Commission", "COM", TransactionType.Buy, 0.05);
     public readonly Fee ComSellCommissionFee = new("Standard COM Commission", "COM", TransactionType.Sell, 0.05);
     public readonly Fee ComSellAdvisoryFee = new("Advisory Fee", "COM", TransactionType.Sell, FlatFee: 500, MinThreshold: 100000);
-
-    //public readonly Fee CbBuyCommissionFee = new("Standard CB Commission", "CB", TransactionType.Buy, 0.02);
-    //public readonly Fee CbSellCommissionFee = new("Standard CB Commission", "CB", TransactionType.Sell, 0.01);
-
     public readonly Fee FxBuyCommissionFee = new("Standard FX Commission", "FX", TransactionType.Buy, 0.01);
     public readonly Fee FxSellLowerCommissionFee = new("Standard FX Commission", "FX", TransactionType.Sell, FlatFee: 100, MinThreshold: 10000, MaxThreshold: 999999.99);
     public readonly Fee FxSellHigherCommissionFee = new("Standard Commission", "FX", TransactionType.Sell, FlatFee: 1000, MinThreshold: 1000000);
 
 
-
-
+    /// <summary>
+    /// This test verifies the example stated in the ProblemDescription.md
+    /// </summary>
+    /// <returns></returns>
     [Fact]
     public async Task CommissionCalculationService_WhenHasSingleFee_ReturnsCorrectCharge()
     {
@@ -50,7 +46,7 @@ public class CommissionCalculationServiceTests
             ComBuyCommissionFee
         ]);
 
-        Trade trade = new("COM", TransactionType.Buy, 154, 10);
+        Trade trade = new("COM", TransactionType.Buy, 1000, 12);
         List<Trade> trades = [trade];
 
         var expectedResult = trade.Quantity * trade.Price * ComBuyCommissionFee.PercentageOfTotal / 100;
