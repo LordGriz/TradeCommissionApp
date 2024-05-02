@@ -8,7 +8,7 @@ financial trades and return the total commission amount.
 A detailed description of the problem can be found [here](Documentation/ProblemDescription.md).
 
 ## Solution
-The [CalculationService](CalculationService) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Test](Test) folder. 
+The [CalculationService](CalculationService) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Tests](Tests) folder. 
 
 
 ## Project Architecture 
