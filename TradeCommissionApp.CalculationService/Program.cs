@@ -1,10 +1,13 @@
-using Infrastructure;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TradeCommissionApp.ApiService;
+using System.Text.Json.Serialization;
+using Domain.Contracts;
+using TradeCommissionApiTypes;
+using TradeCommissionApp.CalculationService;
+using TradeCommissionApp.CalculationService.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -12,8 +15,8 @@ builder.AddServiceDefaults();
 // Add services to the container.
 builder.Services.AddProblemDetails();
 
-builder.Services.AddPersistence();
-
+// Add services to the container.
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -23,6 +26,10 @@ builder.Services.AddControllers().AddJsonOptions(configure =>
     configure.JsonSerializerOptions.AllowTrailingCommas = true;
     configure.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
+
+builder.Services.AddHttpClient<IFeeRepository, FeeRepository>(client => client.BaseAddress = new("http://apiservice"));
+//builder.Services.AddScoped<IFeeRepository, FeeRepository>();
+builder.Services.AddScoped<CommissionCalculationService>();
 
 var app = builder.Build();
 
@@ -60,10 +67,15 @@ app.UseExceptionHandler(configure =>
     });
 });
 
-app.AddFeesRoutes();
-app.AddTradesRoutes();
+// Add the endpoint for calculating the commission
+app.MapPost("/commission/calculate", async (CommissionCalculationService calculationService, CalculateCommissionRequest request) =>
+{
+    var result = await calculationService.Calculate(request.ToTradeList());
+    return Results.Ok(result);
+}).WithTags("Commission Service"); ;
 
 app.MapDefaultEndpoints();
+
 
 app.Run();
 
