@@ -7,40 +7,44 @@ namespace Infrastructure.Repositories;
 
 public sealed class FeeRepository : IFeeRepository
 {
-    private readonly TradeCommissionDbContext _dbContext;
+    private readonly TradeCommissionDbContextFactory _dbContextFactory;
 
-    public FeeRepository(TradeCommissionDbContext dbContext)
+    public FeeRepository(TradeCommissionDbContextFactory dbContextFactory)
     {
-        _dbContext = dbContext;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Fee> Add(Fee fee)
     {
-        var added = await _dbContext.Fees.AddAsync(fee);
-        await _dbContext.SaveChangesAsync();
+        var dbContext = _dbContextFactory.CreateTradeCommissionDbContext();
+        var added = await dbContext.Fees.AddAsync(fee);
+        await dbContext.SaveChangesAsync();
 
         return added.Entity;
     }
 
     public async Task<bool> Remove(Fee fee)
     {
-        _dbContext.Fees.Remove(fee);
-        var changes = await _dbContext.SaveChangesAsync();
+        var dbContext = _dbContextFactory.CreateTradeCommissionDbContext();
+        dbContext.Fees.Remove(fee);
+        var changes = await dbContext.SaveChangesAsync();
 
         return changes > 0;
     }
 
     public async Task<bool> Update(Fee fee)
     {
-        _dbContext.Fees.Update(fee);
-        var changes = await _dbContext.SaveChangesAsync();
+        var dbContext = _dbContextFactory.CreateTradeCommissionDbContext();
+        dbContext.Fees.Update(fee);
+        var changes = await dbContext.SaveChangesAsync();
 
         return changes > 0;
     }
 
     public IAsyncEnumerable<Fee> Get(string? securityType = default, TransactionType? transactionType = default)
     {
-        var fees = _dbContext.Fees.AsQueryable();
+        var dbContext = _dbContextFactory.CreateTradeCommissionDbContext();
+        var fees = dbContext.Fees.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(securityType))
         {
@@ -57,6 +61,7 @@ public sealed class FeeRepository : IFeeRepository
 
     public async Task<Fee?> Get(Guid id)
     {
-        return await _dbContext.Fees.FirstOrDefaultAsync(f => f.Id == id);
+        var dbContext = _dbContextFactory.CreateTradeCommissionDbContext();
+        return await dbContext.Fees.FirstOrDefaultAsync(f => f.Id == id);
     }
 }

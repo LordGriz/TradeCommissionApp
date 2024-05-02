@@ -9,6 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services)
     {
+        services.AddScoped<TradeCommissionDbContextFactory>();
         services.AddScoped<IFeeRepository, FeeRepository>();
         services.AddScoped<ITradeRepository, TradeRepository>();
 
