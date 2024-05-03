@@ -26,8 +26,6 @@ public class CommissionCalculationServiceTests
             .Setup(r => r.Get(It.IsAny<string?>(), It.IsAny<TransactionType?>()))
             .Returns((string? securityType, TransactionType? transactionType) =>
                 fees.Where(f => string.CompareOrdinal(f.SecurityType, securityType) == 0 && f.TransactionType == transactionType).ToAsyncEnumerable());
-        //.Returns((string? _, TransactionType? _) =>
-        //    fees.ToAsyncEnumerable());
     }
 
     public readonly Fee ComBuyCommissionFee = new("Standard COM Commission", "COM", TransactionType.Buy, 0.05);
