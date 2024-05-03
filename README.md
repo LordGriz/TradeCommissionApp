@@ -20,7 +20,7 @@ This library contains all the Entities, ValueObjects, and business logic needed 
 ### TradeCommissionApp.CalculationService
 The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given.
 
-The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommission.ApiService]TradeCommission.ApiService instead of directly to the database.
+The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommissionApp.ApiService](TradeCommissionApp.ApiService) instead of directly to the database.
 
 ### TradeCommissionApp.AppHost
 An application orchestrator with allows a view into the distributed services. A link to each endpoint is provided along with links to the logs and metrics of each service. This project is standard in .NET Aspire.
