@@ -28,7 +28,6 @@ builder.Services.AddControllers().AddJsonOptions(configure =>
 });
 
 builder.Services.AddHttpClient<IFeeRepository, FeeRepository>(client => client.BaseAddress = new("http://apiservice"));
-//builder.Services.AddScoped<IFeeRepository, FeeRepository>();
 builder.Services.AddScoped<CommissionCalculationService>();
 
 var app = builder.Build();

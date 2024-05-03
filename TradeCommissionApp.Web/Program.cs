@@ -11,7 +11,9 @@ builder.AddRedisOutputCache("cache");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<TradeCommissionApiClient>(client => client.BaseAddress = new("http://apiservice"));
+builder.Services.AddHttpClient<ApiServiceClient>(client => client.BaseAddress = new("http://apiservice"));
+builder.Services.AddHttpClient<CalculationServiceClient>(client => client.BaseAddress = new("http://calculationservice"));
+
 
 var app = builder.Build();
 
