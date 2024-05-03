@@ -4,13 +4,15 @@ using Domain.Types;
 
 namespace TradeCommissionApiTypes;
 
-public sealed class AddFeeRequest
+public sealed class FeeRequest
 {
-    public AddFeeRequest()
+    private string _securityType = string.Empty;
+
+    public FeeRequest()
     {
     }
 
-    public AddFeeRequest(string description, string securityType, TransactionType transactionType, double percentageOfTotal = 0, double flatFee = 0,
+    public FeeRequest(string description, string securityType, TransactionType transactionType, double percentageOfTotal = 0, double flatFee = 0,
         double? minThreshold = default, double? maxThreshold = default)
     {
         Description = description;
@@ -29,7 +31,12 @@ public sealed class AddFeeRequest
 
 
     public string Description { get; set; } = string.Empty;
-    public string SecurityType { get; set; } = string.Empty;
+
+    public string SecurityType
+    {
+        get => _securityType;
+        set => _securityType = value.ToUpper();
+    }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public TransactionType TransactionType { get; set; } = TransactionType.Unknown;

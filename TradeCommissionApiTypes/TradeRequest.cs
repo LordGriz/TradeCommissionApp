@@ -6,6 +6,8 @@ namespace TradeCommissionApiTypes;
 
 public sealed class TradeRequest
 {
+    private string _securityType = string.Empty;
+
     public TradeRequest()
     {
     }
@@ -23,7 +25,11 @@ public sealed class TradeRequest
         return new Trade(SecurityType, TransactionType, Quantity, Price);
     }
 
-    public string SecurityType { get; set; } = string.Empty;
+    public string SecurityType
+    {
+        get => _securityType;
+        set => _securityType = value.ToUpper();
+    }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public TransactionType TransactionType { get; set; } = TransactionType.Unknown;

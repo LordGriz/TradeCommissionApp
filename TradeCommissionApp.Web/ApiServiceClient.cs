@@ -10,7 +10,7 @@ public class ApiServiceClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<Fee[]>("/fees") ?? [];
     }
 
-    public async Task AddFeeAsync(AddFeeRequest request)
+    public async Task AddFeeAsync(FeeRequest request)
     {
         await httpClient.PostAsJsonAsync("/fees", request);
     }

@@ -11,7 +11,7 @@ public static class FeesRouteConfiguration
     {
         // Add a new fee 
         //
-        app.MapPost("/fees", async (IFeeRepository repository, AddFeeRequest feeRequest) =>
+        app.MapPost("/fees", async (IFeeRepository repository, FeeRequest feeRequest) =>
         {
             var fee = feeRequest.ToFee();
             fee = await repository.Add(fee);

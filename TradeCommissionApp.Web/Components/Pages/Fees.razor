@@ -103,7 +103,7 @@ else
 
 @code {
     [SupplyParameterFromForm]
-    public AddFeeRequest? Model { get; set; }
+    public FeeRequest? Model { get; set; }
 
     private Fee[]? fees;
 
@@ -112,7 +112,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Model ??= new AddFeeRequest();
+        Model ??= new FeeRequest();
         editContext = new EditContext(Model);
         editContext.OnValidationRequested += HandleValidation;
         messageStore = new ValidationMessageStore(editContext);
@@ -183,7 +183,7 @@ else
     private async Task AddAsync()
     {
         await FeesApi.AddFeeAsync(Model!);
-        Model = new AddFeeRequest();
+        Model = new FeeRequest();
 
         fees = await FeesApi.GetFeesAsync();
     }
