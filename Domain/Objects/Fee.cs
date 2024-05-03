@@ -23,6 +23,4 @@ public sealed record Fee(string Description, string SecurityType, TransactionTyp
 
         return result + FlatFee;
     }
-
-    
 }

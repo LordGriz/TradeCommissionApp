@@ -7,7 +7,8 @@
 @attribute [OutputCache(Duration = 5)]
 @rendermode InteractiveServer
 
-@inject TradeCommissionApiClient TradeAppApi
+@inject ApiServiceClient TradesApi
+@inject CalculationServiceClient CalculationApi
 
 <PageTitle>Trades</PageTitle>
 
@@ -145,13 +146,13 @@ else
 
     private async Task DeleteAsync(Guid id)
     {
-        await TradeAppApi.DeleteTradeAsync(id);
+        await TradesApi.DeleteTradeAsync(id);
         await CalculateCommissionAsync();
     }
 
     private async Task AddAsync()
     {
-        await TradeAppApi.AddTradeAsync(Model!);
+        await TradesApi.AddTradeAsync(Model!);
 
         Model = new TradeRequest();
         await CalculateCommissionAsync();
@@ -159,8 +160,8 @@ else
 
     private async Task CalculateCommissionAsync()
     {
-        trades = await TradeAppApi.GetTradesAsync();
-        var result = await TradeAppApi.CalculateCommissionAsync(trades!);
+        trades = await TradesApi.GetTradesAsync();
+        var result = await CalculationApi.CalculateCommissionAsync(trades!);
         commission = result?.Total ?? 0;
     }
 }

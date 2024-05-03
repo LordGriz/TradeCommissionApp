@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TradeCommissionApp.ApiService\TradeCommissionApp.ApiService.csproj" />
+    <ProjectReference Include="..\TradeCommissionApp.CalculationService\TradeCommissionApp.CalculationService.csproj" />
     <ProjectReference Include="..\TradeCommissionApp.Web\TradeCommissionApp.Web.csproj" />
   </ItemGroup>
 

@@ -8,7 +8,7 @@ financial trades and return the total commission amount.
 A detailed description of the problem can be found [here](Documentation/ProblemDescription.md).
 
 ## Solution
-The [CalculationService](CalculationService) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Tests](Tests) folder. 
+The [CalculationService](TradeCommissionApp.CalculationService) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Tests](Tests) folder. 
 
 
 ## Project Architecture 
@@ -17,16 +17,18 @@ This project is  a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire
 ### Domain
 This library contains all the Entities, ValueObjects, and business logic needed to operate within the application domain.
 
-### CalculationService
-The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given. 
+### TradeCommissionApp.CalculationService
+The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given.
 
-### TradeCommission.AppHost
+The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommission.ApiService]TradeCommission.ApiService instead of directly to the database.
+
+### TradeCommissionApp.AppHost
 An application orchestrator with allows a view into the distributed services. A link to each endpoint is provided along with links to the logs and metrics of each service. This project is standard in .NET Aspire.
 
-### TradeCommission.ApiService
+### TradeCommissionApp.ApiService
 An custom web api service which is used to interact with the application database. It makes use of both the Domain and Infrastructure libraries to respond to HTTP requests sent by the caller.
 
-### TradeCommission.Web
+### TradeCommissionApp.Web
 The front end web application which communicates directly with the ApiService.  The application is written using server side Blazor, however, it could be easily ported to a WebAssembly.
 
 ## Running the application
@@ -49,7 +51,7 @@ Running the full application in Visual Studio should open a new browser window p
 > Note: If the page does not display any services, stop and restart the app. There seems to be a bug outside of my code which I haven't yet investigated.
 
 #### ApiService
-Browsing to the **apiservice** endpoint will bring the developer to the Swagger page which can be used to send Api requests to the running instance.
+Browsing to the **apiservice** endpoint will bring the developer to the Swagger page which can be used to send Api requests to the running instance. A similar page appears for the **calculationservice** 
 
 ![ApiService](Documentation/Images/ApiService_Swagger_Screenshot.jpg)
 

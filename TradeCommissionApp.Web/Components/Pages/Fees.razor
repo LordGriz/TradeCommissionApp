@@ -6,7 +6,7 @@
 @attribute [OutputCache(Duration = 5)]
 @rendermode InteractiveServer
 
-@inject TradeCommissionApiClient TradeAppApi
+@inject ApiServiceClient FeesApi
 
 <PageTitle>Fees</PageTitle>
 
@@ -103,7 +103,7 @@ else
 
 @code {
     [SupplyParameterFromForm]
-    public AddFeeRequest? Model { get; set; }
+    public FeeRequest? Model { get; set; }
 
     private Fee[]? fees;
 
@@ -112,12 +112,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Model ??= new AddFeeRequest();
+        Model ??= new FeeRequest();
         editContext = new EditContext(Model);
         editContext.OnValidationRequested += HandleValidation;
         messageStore = new ValidationMessageStore(editContext);
 
-        fees = await TradeAppApi.GetFeesAsync();
+        fees = await FeesApi.GetFeesAsync();
     }
 
     private void HandleValidation(object? sender, ValidationRequestedEventArgs args)
@@ -170,21 +170,21 @@ else
 
     private async Task DeleteAsync(Guid id)
     {
-        await TradeAppApi.DeleteFeeAsync(id);
-        fees = await TradeAppApi.GetFeesAsync();
+        await FeesApi.DeleteFeeAsync(id);
+        fees = await FeesApi.GetFeesAsync();
     }
 
     private async Task ResetToDefault()
     {
-        await TradeAppApi.ResetToDefaultAsync();
-        fees = await TradeAppApi.GetFeesAsync();
+        await FeesApi.ResetToDefaultAsync();
+        fees = await FeesApi.GetFeesAsync();
     }
 
     private async Task AddAsync()
     {
-        await TradeAppApi.AddFeeAsync(Model!);
-        Model = new AddFeeRequest();
+        await FeesApi.AddFeeAsync(Model!);
+        Model = new FeeRequest();
 
-        fees = await TradeAppApi.GetFeesAsync();
+        fees = await FeesApi.GetFeesAsync();
     }
 }

@@ -3,14 +3,14 @@ using TradeCommissionApiTypes;
 
 namespace TradeCommissionApp.Web;
 
-public class TradeCommissionApiClient(HttpClient httpClient)
+public class ApiServiceClient(HttpClient httpClient)
 {
     public async Task<Fee[]> GetFeesAsync()
     {
         return await httpClient.GetFromJsonAsync<Fee[]>("/fees") ?? [];
     }
 
-    public async Task AddFeeAsync(AddFeeRequest request)
+    public async Task AddFeeAsync(FeeRequest request)
     {
         await httpClient.PostAsJsonAsync("/fees", request);
     }
@@ -39,13 +39,4 @@ public class TradeCommissionApiClient(HttpClient httpClient)
     {
         await httpClient.PostAsJsonAsync("/trades", trade);
     }
-
-    public async Task<CalculationResultResponse?> CalculateCommissionAsync(Trade[] trades)
-    {
-        var request = new CalculateCommissionRequest(
-            trades.Select(t => new TradeRequest(t.SecurityType, t.TransactionType, t.Quantity, t.Price)).ToArray());
-
-        var response = await httpClient.PostAsJsonAsync("commission/calculate", request);
-        return await response.Content.ReadFromJsonAsync<CalculationResultResponse>();
-    }   
 }

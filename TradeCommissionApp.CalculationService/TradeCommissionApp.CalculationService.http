@@ -1,0 +1,6 @@
+@TradeCommissionApp.CalculationService_HostAddress = http://localhost:5269
+
+GET {{TradeCommissionApp.CalculationService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
