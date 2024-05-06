@@ -2,9 +2,9 @@
 
 namespace TradeCommissionApiTypes;
 
-public sealed class CalculationResultResponse(List<Charge> tradeCommissions, double total)
+public sealed class CalculationResultResponse(Charge[] tradeCommissions, double total)
 {
-    public List<Charge> TradeCommissions { get; } = tradeCommissions;
+    public Charge[] TradeCommissions { get; } = tradeCommissions;
 
     public double Total { get; } = total;
 }
