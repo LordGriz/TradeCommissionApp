@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Objects;
+using System.Collections.Concurrent;
 using TradeCommissionApiTypes;
 
 namespace TradeCommissionApp.CalculationService;
@@ -27,7 +28,7 @@ public sealed class CommissionCalculationService
 
     public async Task<CalculationResultResponse> Calculate(IEnumerable<Trade> trades)
     {
-        List<Charge> tradeCommissions = [];
+        ConcurrentBag<Charge> tradeCommissions = [];
         double totalCommission = 0;
 
         // Operate on the IEnumerable using multiple threads
@@ -62,6 +63,6 @@ public sealed class CommissionCalculationService
             while (Math.Abs(initialValue - Interlocked.CompareExchange(ref totalCommission, computedValue, initialValue)) > 0.001);
         });
         
-        return new CalculationResultResponse(tradeCommissions, totalCommission);
+        return new CalculationResultResponse([.. tradeCommissions], totalCommission);
     }
 }
