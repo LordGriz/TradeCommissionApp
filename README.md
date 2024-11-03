@@ -5,10 +5,10 @@
 Design and implement a Trade Commission calculation service. This service will accept data for multiple
 financial trades and return the total commission amount.
 
-A detailed description of the problem can be found [here](Documentation/ProblemDescription.md).
+A detailed description of the problem can be found in the [Documentation](Documentation/ProblemDescription.md) folder.
 
 ## Solution
-The [CalculationService](TradeCommissionApp.CalculationService) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Tests](Tests) folder. 
+The [CalculationService](TradeCommissionApp.CalculationService/CommissionCalculationService.cs) contains the code for determining the total commission. This code can be easily exercised by running the unit tests found within the [Tests](Tests) folder. 
 
 
 ## Project Architecture 
@@ -20,7 +20,7 @@ This library contains all the Entities, ValueObjects, and business logic needed 
 ### TradeCommissionApp.CalculationService
 The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given.
 
-The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommissionApp.ApiService](TradeCommissionApp.ApiService) instead of directly to the database.
+The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommissionApp.ApiService](TradeCommissionApp.ApiService/TradesRouteConfiguration.cs) instead of directly to the database.
 
 ### TradeCommissionApp.AppHost
 An application orchestrator with allows a view into the distributed services. A link to each endpoint is provided along with links to the logs and metrics of each service. This project is standard in .NET Aspire.
@@ -42,6 +42,8 @@ The front end web application which communicates directly with the ApiService.  
    > Note: Docker Desktop is not needed to run the unit tests, but is required to run the full application. 
 
 ### Running from Visual Studio
+
+To run the full services (and not just the unit tests) the .Net Aspire workload must first be installed in Visual Studio. Directions to do so can be found at https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling?tabs=windows&pivots=visual-studio
 
 #### AppHost
 Running the full application in Visual Studio should open a new browser window pointing to TradeCommission.AppHost. This orchestrator page will display the following table of running services, their logs, and their metrics:
