@@ -15,7 +15,7 @@ A detailed description of the problem can be found in the [Documentation](Docume
 The solution to the stated problem can be found in the [CalculationService](TradeCommissionApp.CalculationService/CommissionCalculationService.cs). This code can be easily exercised by running the unit tests found within the [Tests](Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs) folder. 
 
 Specifically, the following test will validate the example shown in the [problem description](Documentation/ProblemDescription.md):
-https://github.com/LordGriz/TradeCommissionApp/blob/787eff5a6ac50a7e8cabd8a12d0ada444ff0a12d/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
+https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
 
 ## Project Architecture 
 This overall project is a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) application. The solution contains a number of projects to ensure separation of concerns. Each service in the application is designed to run in its own container so it could be easily deployed to a cloud hosting service. The purpose and design of each component is summarized below.
@@ -33,7 +33,7 @@ The repositories defined in the Infrastructure library use the Entity framework 
 ### [TradeCommissionApiTypes](/TradeCommissionApiTypes/)
 The types defined in this library are for the Json messages used for comunication by the services. Each request/response type also contains the logic to create the appropriate Domain object:
 
-https://github.com/LordGriz/TradeCommissionApp/blob/787eff5a6ac50a7e8cabd8a12d0ada444ff0a12d/TradeCommissionApiTypes/FeeRequest.cs#L27C5-L30C6
+https://github.com/LordGriz/TradeCommissionApp/blob/main/TradeCommissionApiTypes/FeeRequest.cs#L27C5-L30C6
 
 ### [TradeCommissionApp.ApiService](/TradeCommissionApp.ApiService/)
 A custom web api service which is used to interact with the application database. The other services access the Database through this Api. The project makes use of both the Domain and Infrastructure libraries to respond to HTTP requests sent by the caller. This design allows for the additional spinning up of Api service containers during periods of high database activity without the need to increase the number of CPUs running in the web front-end. This is of course also limited by the number of simultaneous requests the database can handle.
