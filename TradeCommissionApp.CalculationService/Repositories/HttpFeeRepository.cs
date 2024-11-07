@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text;
+﻿using System.Text;
 using Domain.Contracts;
 using Domain.Objects;
 using Domain.Types;
@@ -7,7 +6,7 @@ using Domain.Types;
 
 namespace TradeCommissionApp.CalculationService.Repositories;
 
-public class FeeRepository(HttpClient httpClient) : IFeeRepository
+public class HttpFeeRepository(HttpClient httpClient) : IFeeRepository
 {
     public async Task<Fee> Add(Fee fee)
     {

@@ -29,20 +29,25 @@ public sealed class CommissionCalculationService
     public async Task<CalculationResultResponse> Calculate(IEnumerable<Trade> trades)
     {
         ConcurrentBag<Charge> tradeCommissions = [];
+
+        // For a financial calculation we would normally want to use the 'decimal' type throughout the application. However,
+        // for the sake of simplicity, we will use a double.
         double totalCommission = 0;
 
         // Operate on the IEnumerable using multiple threads
         await Parallel.ForEachAsync(trades, _options, async (trade, cancellationToken) =>
         {
-            // Do not perform any calculations if the execution was cancelled
+            // Do not perform any calculations if the execution was canceled
             if (cancellationToken.IsCancellationRequested) return;
 
             var totalTrade = trade.Quantity * trade.Price;
             double commission = 0;
 
+            // This IFeeRepository implementation is backed by an HttpClient calling the Api service, rather than the database. The Api service could
+            // therefore be configured to use a distributed cache to store results for a period of time to limit database calls.
             await foreach (var fee in _feeRepository.Get(trade.SecurityType, trade.TransactionType).WithCancellation(cancellationToken))
             {
-                // Calculate the commission based on the given fee
+                // Calculate the commission based on the given fee. This calculation happens synchronously for each streamed Fee.
                 commission += fee.Calculate(totalTrade);
             }
 
@@ -50,7 +55,8 @@ public sealed class CommissionCalculationService
             tradeCommissions.Add(
                 new Charge(trade.Id, commission));
 
-            // Keep a running total using thread-safe double addition
+            // Keep a running total using thread-safe double addition. This is needed because Parallel.ForEachAsync() may be operating on
+            // multiple threads simultaneously. This why ConcurrentBag is also used to store the results.
             double initialValue, computedValue;
             do
             {
