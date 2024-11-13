@@ -15,30 +15,35 @@ A detailed description of the problem can be found in the [Documentation](Docume
 The solution to the stated problem can be found in the [CalculationService](TradeCommissionApp.CalculationService/CommissionCalculationService.cs). This code can be easily exercised by running the unit tests found within the [Tests](Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs) folder. 
 
 Specifically, the following test will validate the example shown in the [problem description](Documentation/ProblemDescription.md):
+
 https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
 
 ## Project Architecture 
-This overall project is a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) application. The solution contains a number of projects to ensure separation of concerns. Each service in the application is designed to run in its own container so it could be easily deployed to a cloud hosting service. The purpose and design of each component is summarized below.
+This is a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) distributed application. The solution contains a number of projects to ensure separation of concerns. Each service was designed to run in its own container and could be easily deployed to a cloud hosting service. However, the appropriate Dockerfiles for this have not been added to the solution.
+
+A high level description of the purpose and design of each component is summarized below.
 
 ### [Domain](/Domain/)
-This library contains all the Entities, ValueObjects, and business logic needed to operate within the application domain. Any names or logic found here should be immediately recognizable to the Product Owners. Ideally 'ubiquitous language' should be used which is understandable from a business context. An example can be seen in the [Fee](Domain/Objects/Fee.cs) domain object.
+This library contains all the Entities, ValueObjects, and business logic needed to operate within the domain. Any names or logic found here should be immediately recognizable to the Product Owners. Ideally 'ubiquitous language' should be used which is understandable from a business context. An example can be seen in the [Fee](Domain/Objects/Fee.cs) domain object.
 
 This Domain library could be maintained separately for use across different applications within a business unit.
 
 ### [Infrastructure](/Infrastructure/)
-As indicated by its name, this library contains all code related to the infrastructure used by the services. In this particular case it simply contains the concrete repository objects which implement the [contracts contained in the Domain project](Domain/Contracts/). This is done to ensure the services need not know about the database implementation. In this way, the database layer could be entirely replaced (e.g. moving from a SQL to a NoSql database) without affecting the other projects.
+As indicated by its name, this library contains all code related to the infrastructure used by the services. In this particular case it simply contains the concrete repository objects which implement the [repository contracts defined by the Domain](Domain/Contracts/). This is done to ensure the services need not know about the database implementation. In this way, the database layer could be entirely replaced (e.g. moving from a SQL to a NoSql database) without affecting the other projects.
 
-The repositories defined in the Infrastructure library use the Entity framework to store the data in a local flat file database. This is only done for the sake of simplicity of this project.
+The repositories defined in the Infrastructure library use the Entity framework to store the data in a local flat file database. This is only done for the sake of the simplicity of this project.
 
 ### [TradeCommissionApiTypes](/TradeCommissionApiTypes/)
-The types defined in this library are for the Json messages used for comunication by the services. Each request/response type also contains the logic to create the appropriate Domain object:
+The types defined in this library are for the Json messages used for communication by the services. Each request/response type also contains the logic to create the appropriate Domain object:
 
 https://github.com/LordGriz/TradeCommissionApp/blob/main/TradeCommissionApiTypes/FeeRequest.cs#L27C5-L30C6
 
 ### [TradeCommissionApp.ApiService](/TradeCommissionApp.ApiService/)
-A custom web api service which is used to interact with the application database. The other services access the Database through this Api. The project makes use of both the Domain and Infrastructure libraries to respond to HTTP requests sent by the caller. This design allows for the additional spinning up of Api service containers during periods of high database activity without the need to increase the number of CPUs running in the web front-end. This is of course also limited by the number of simultaneous requests the database can handle.
+A custom web api service which is used to interact with the application database. The other services access the Database through this Api. This has the added security benefit of limiting the scope of database access to a single service rather than many separate services. The project makes use of both the Domain and Infrastructure libraries to respond to HTTP requests sent by the caller.
 
-Further, here a single Api service is handling both Fee and Trade calls for a single database. Depending on performance considerations, it may make sense to split up the apis into two services and, perhaps, even split the database itself. 
+This design allows for the additional Api service containers to be brought up during periods of high activity without affecting other services. This is of course limited by the number of simultaneous requests the database can handle and design of the Api service.
+
+For instance, here a single Api service is handling both Fee and Trade calls for a single database. Depending on performance considerations, it may make sense to split up the apis into two distinct services and, perhaps, split the database itself based on usage. 
 
 ### [TradeCommissionApp.AppHost](/TradeCommissionApp.AppHost/)
 This project is standard in .NET Aspire and is only meant to be used during development. It is an application orchestrator which allows a view into the distributed services. A link to each endpoint is provided along with links to the logs and metrics of each service. 
@@ -46,7 +51,7 @@ This project is standard in .NET Aspire and is only meant to be used during deve
 Each service in this application uses [OpenTelemetry](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel) for gathering logs and metrics. The AppHost project is meant to take the place of something like Elastic Search during development. A screenshot can be seen in the "Running from Visual Studio" section below.
 
 ### [TradeCommissionApp.CalculationService](/TradeCommissionApp.CalculationService/)
-The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given by the Fee object.
+The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given by processing Fee objects.
 
 The calculation service may use a large number of threads (cpus) so it is maintained as a separate api service. It connects to the [TradeCommissionApp.ApiService](TradeCommissionApp.ApiService/TradesRouteConfiguration.cs) instead of directly to the database.
 
@@ -54,9 +59,9 @@ The CalculationService uses its own implementation of an [IFeeRepository](/Domai
 
 
 ### [TradeCommissionApp.Web](/TradeCommissionApp.Web/)
-The front-end web application communicates directly with the ApiService to perform all actions. The application is written using server side Blazor, however, it could be easily ported to a WebAssembly.
+The front-end web application communicates directly with the ApiService to perform all actions. The application is written using server side Blazor, however, it could be easily ported to a Blazor WebAssembly.
 
-Since the project uses Http for communication rather than direct calls to the database, it can more easily swapped a project written with a different technology (such as React) if the need should arise.
+Since the project uses HTTP for communication rather than direct calls to the database, it can more easily be swapped out for a project written with a different technology (such as React) if the need should arise.
 
 ## Running the application
 
