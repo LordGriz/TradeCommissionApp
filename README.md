@@ -16,7 +16,7 @@ The solution to the stated problem can be found in the [CalculationService](Trad
 
 Specifically, the following test will validate the example shown in the [problem description](Documentation/ProblemDescription.md):
 
-https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
+https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43-L65
 
 ## Project Architecture 
 This is a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) distributed application. The solution contains a number of projects to ensure separation of concerns. Each service was designed to run in its own container and could be easily deployed to a cloud hosting service. However, the appropriate Dockerfiles for this have not been added to the solution.
@@ -36,7 +36,7 @@ The repositories defined in the Infrastructure library use the Entity framework 
 ### [TradeCommissionApiTypes](/TradeCommissionApiTypes/)
 The types defined in this library are for the Json messages used for communication by the services. Each request/response type also contains the logic to create the appropriate Domain object:
 
-https://github.com/LordGriz/TradeCommissionApp/blob/main/TradeCommissionApiTypes/FeeRequest.cs#L27C5-L30C6
+https://github.com/LordGriz/TradeCommissionApp/blob/main/TradeCommissionApiTypes/FeeRequest.cs#L27-L30
 
 ### [TradeCommissionApp.ApiService](/TradeCommissionApp.ApiService/)
 A custom web api service which is used to interact with the application database. The other services access the Database through this Api. This has the added security benefit of limiting the scope of database access to a single service rather than many separate services. The project makes use of both the Domain and Infrastructure libraries to respond to HTTP requests sent by the caller.
@@ -48,7 +48,7 @@ For instance, here a single Api service is handling both Fee and Trade calls for
 ### [TradeCommissionApp.AppHost](/TradeCommissionApp.AppHost/)
 This project is standard in .NET Aspire and is only meant to be used during development. It is an application orchestrator which allows a view into the distributed services. A link to each endpoint is provided along with links to the logs and metrics of each service. 
 
-Each service in this application uses [OpenTelemetry](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel) for gathering logs and metrics. The AppHost project is meant to take the place of something like Elastic Search during development. A screenshot can be seen in the "Running from Visual Studio" section below.
+Each service in this application uses [OpenTelemetry](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel) for gathering logs and metrics. The AppHost project is meant to take the place of something like Elastic Search during development. A screenshot can be seen in the ["Running from Visual Studio"](#running-from-visual-studio) section below.
 
 ### [TradeCommissionApp.CalculationService](/TradeCommissionApp.CalculationService/)
 The service contains the application logic which processes Domain Objects to calculate the total commission. The service itself has no knowledge of how a commission is calculated, and simply sums the totals it's given by processing Fee objects.
