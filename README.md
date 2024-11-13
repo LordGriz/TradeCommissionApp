@@ -16,7 +16,7 @@ The solution to the stated problem can be found in the [CalculationService](Trad
 
 Specifically, the following test will validate the example shown in the [problem description](Documentation/ProblemDescription.md):
 
-https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43-L65
+https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43-L64
 
 ## Project Architecture 
 This is a [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) distributed application. The solution contains a number of projects to ensure separation of concerns. Each service was designed to run in its own container and could be easily deployed to a cloud hosting service. However, the appropriate Dockerfiles for this have not been added to the solution.
