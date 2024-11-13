@@ -16,6 +16,9 @@ The solution to the stated problem can be found in the [CalculationService](Trad
 
 Specifically, the following test will validate the example shown in the [problem description](Documentation/ProblemDescription.md):
 
+https://github.com/LordGriz/TradeCommissionApp/blob/7233d9e8223db4fe71d444d82cd52c11e92dc14d/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
+
+
 https://github.com/LordGriz/TradeCommissionApp/blob/main/Tests/CalculationService.Tests/CommissionCalculationServiceTests.cs#L43C5-L65C1
 
 ## Project Architecture 
