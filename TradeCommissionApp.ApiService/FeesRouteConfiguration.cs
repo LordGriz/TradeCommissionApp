@@ -25,6 +25,18 @@ public static class FeesRouteConfiguration
                 await repository.Get(securityType, transactionType).ToListAsync())
             .WithTags("Fees");
 
+        // Get a specific fee
+        //
+        app.MapGet("/fee/{id:guid}", async (IFeeRepository repository, Guid id) =>
+        {
+            var fee = await repository.Get(id);
+
+            return fee is null 
+                ? Results.NotFound(id)
+                : Results.Ok(fee);
+
+        }).WithTags("Fees");
+
         // Delete a fee
         //
         app.MapDelete("/fees/{id:guid}", async (IFeeRepository repository, Guid id) =>
