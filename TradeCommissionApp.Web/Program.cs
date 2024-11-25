@@ -11,8 +11,11 @@ builder.AddRedisOutputCache("cache");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<ApiServiceClient>(client => client.BaseAddress = new("https://apiservice"));
-builder.Services.AddHttpClient<CalculationServiceClient>(client => client.BaseAddress = new("https://calculationservice"));
+builder.Services.AddHttpClient<ApiServiceClient>(client => client.BaseAddress = new("https://apiservice"))
+    .AddStandardResilienceHandler(); ;
+
+builder.Services.AddHttpClient<CalculationServiceClient>(client => client.BaseAddress = new("https://calculationservice"))
+    .AddStandardResilienceHandler(); ;
 
 
 var app = builder.Build();

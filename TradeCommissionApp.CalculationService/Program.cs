@@ -27,7 +27,9 @@ builder.Services.AddControllers().AddJsonOptions(configure =>
     configure.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 });
 
-builder.Services.AddHttpClient<IFeeRepository, HttpFeeRepository>(client => client.BaseAddress = new("https://apiservice"));
+builder.Services.AddHttpClient<IFeeRepository, HttpFeeRepository>(client => client.BaseAddress = new("https://apiservice"))
+    .AddStandardResilienceHandler();
+
 builder.Services.AddScoped<CommissionCalculationService>();
 
 var app = builder.Build();
