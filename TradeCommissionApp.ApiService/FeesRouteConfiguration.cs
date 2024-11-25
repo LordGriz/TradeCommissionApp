@@ -82,24 +82,5 @@ public static class FeesRouteConfiguration
             }
 
         }).WithTags("Fees");
-
-
-        app.MapGet("/fees/stream",
-                 (IFeeRepository repository, string? securityType = default,
-                    TransactionType? transactionType = default) =>
-                {
-                    return StreamFeesAsync();
-
-                    async IAsyncEnumerable<Fee> StreamFeesAsync()
-                    {
-                        //var countries = await countryServices.GetAllAsync();
-                        await foreach (var fee in repository.Get(securityType, transactionType))
-                        {
-                            await Task.Delay(2000);
-                            yield return fee;
-                        }
-                    }
-                })
-            .WithTags("Fees");
     }
 }

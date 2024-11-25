@@ -1,5 +1,4 @@
 ﻿using Domain.Contracts;
-using Domain.Objects;
 using TradeCommissionApiTypes;
 
 namespace TradeCommissionApp.ApiService;
