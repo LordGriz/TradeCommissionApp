@@ -9,25 +9,26 @@ public static class FeesRouteConfiguration
 {
     public static void AddFeesRoutes(this WebApplication app)
     {
+        var feesGroup = app.MapGroup("/fees").WithTags("Fees");
+
         // Add a new fee 
         //
-        app.MapPost("/fees", async (IFeeRepository repository, FeeRequest feeRequest) =>
+        feesGroup.MapPost("/", async (IFeeRepository repository, FeeRequest feeRequest) =>
         {
             var fee = feeRequest.ToFee();
             fee = await repository.Add(fee);
             return Results.Accepted($"/fees/{fee.Id}", fee);
 
-        }).WithTags("Fees");
+        });
 
         // Get all fees with matching security and transaction type when applicable
         //
-        app.MapGet("/fees", async (IFeeRepository repository, string? securityType = default, TransactionType? transactionType = default) =>
-                await repository.Get(securityType, transactionType).ToListAsync())
-            .WithTags("Fees");
+        feesGroup.MapGet("/", async (IFeeRepository repository, string? securityType = default, TransactionType? transactionType = default) =>
+                await repository.Get(securityType, transactionType).ToListAsync());
 
         // Get a specific fee
         //
-        app.MapGet("/fee/{id:guid}", async (IFeeRepository repository, Guid id) =>
+        feesGroup.MapGet("/{id:guid}", async (IFeeRepository repository, Guid id) =>
         {
             var fee = await repository.Get(id);
 
@@ -35,11 +36,11 @@ public static class FeesRouteConfiguration
                 ? Results.NotFound(id)
                 : Results.Ok(fee);
 
-        }).WithTags("Fees");
+        });
 
         // Delete a fee
         //
-        app.MapDelete("/fees/{id:guid}", async (IFeeRepository repository, Guid id) =>
+        feesGroup.MapDelete("/{id:guid}", async (IFeeRepository repository, Guid id) =>
         {
             var fee = await repository.Get(id);
             if (fee is null)
@@ -50,11 +51,11 @@ public static class FeesRouteConfiguration
             await repository.Remove(fee);
             return Results.Ok(fee);
 
-        }).WithTags("Fees");
+        });
 
         // Delete all the fees and re-add them. This is meant for development purposes.
         //
-        app.MapPost("/fees/reset", async (IFeeRepository repository) =>
+        feesGroup.MapPost("/reset", async (IFeeRepository repository) =>
         {
             // Delete everything
             await foreach (var fee in repository.Get())
@@ -81,6 +82,6 @@ public static class FeesRouteConfiguration
                 await repository.Add(fee);
             }
 
-        }).WithTags("Fees");
+        });
     }
 }
